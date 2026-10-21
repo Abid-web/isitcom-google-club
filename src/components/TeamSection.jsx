@@ -9,7 +9,7 @@ const departments = [
   { id: "events-organisation", label: "Events & organisation", note: "Plan · Coordinate · Deliver" },
 ];
 
-function TeamCard({ member, index }) {
+function TeamCard({ member }) {
   const [flipped, setFlipped] = useState(false);
   const toggle = () => setFlipped(value => !value);
   const cardInk = member.color.toLowerCase() === "#fbbc05" ? "#0e0f12" : "#ffffff";
@@ -30,7 +30,6 @@ function TeamCard({ member, index }) {
   >
     <div className="team-card-inner">
       <div className="team-front" style={{ "--card-color": member.color, "--card-ink": cardInk }}>
-        <span className="team-index">{String(index + 1).padStart(2, "0")}</span>
         <div className="team-portrait">
           {member.image
             ? <img src={member.image} alt={member.name} loading="lazy" />
@@ -55,7 +54,7 @@ export default function TeamSection() {
           const members = team.filter(member => member.department === department.id);
           return <div className={`team-tier team-department team-department-${department.id}`} key={department.id}>
             <div className="team-tier-head"><span>{department.label}</span><i /><small>{department.note}</small></div>
-            <div className="team-row">{members.map(member => <TeamCard member={member} index={team.indexOf(member)} key={`${member.name}-${member.role}`} />)}</div>
+            <div className="team-row">{members.map(member => <TeamCard member={member} key={`${member.name}-${member.role}`} />)}</div>
           </div>;
         })}
       </div>

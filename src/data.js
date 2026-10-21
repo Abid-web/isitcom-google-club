@@ -1,3 +1,19 @@
+import ayoubRouatbi from "../assets/Team IGC/Ayoub Rouatbi.webp";
+import chaimaKhalfallah from "../assets/Team IGC/Chaima Khalfallah.webp";
+import danaChebbi from "../assets/Team IGC/Dana Chebbi.webp";
+import emnaSouelmi from "../assets/Team IGC/Emna Souelmi.webp";
+import haithemAbid from "../assets/Team IGC/Haithem Abid.webp";
+import khaireddineLaadhari from "../assets/Team IGC/Khaireddine Laadhari.webp";
+import mariemBaccouche from "../assets/Team IGC/Mariem Baccouche.webp";
+import maryemOmri from "../assets/Team IGC/Maryem Omri.webp";
+import mohamedAmineBziouech from "../assets/Team IGC/Mohamed Amine Bziouech.webp";
+import mohamedKhalilAyadhi from "../assets/Team IGC/Mohamed Khalil Ayadhi.webp";
+import safaHmida from "../assets/Team IGC/Safa Hmida.webp";
+import salmaGunenna from "../assets/Team IGC/Salma Gunenna.webp";
+import sirineGhodhben from "../assets/Team IGC/Sirine Ghodhben.webp";
+import tasnimBenTrad from "../assets/Team IGC/Tasnim Ben Trad.webp";
+import yosriMeftah from "../assets/Team IGC/Yosri Meftah.webp";
+
 export const mission = "We bring curious students together to learn practical skills, share brave ideas, and create projects that make campus life more connected.";
 
 export const counters = [
@@ -13,28 +29,26 @@ export const departments = [
   { act: "Act I · Inspire", title: "Communication", color: "#fff0b5", accent: "#fbbc05", copy: "Build the confidence to connect. Speak with clarity, listen with purpose and open doors for others.", chips: ["Soft Skills", "CV / LinkedIn / Portfolio", "Debates"], visual: "communication" },
 ];
 
-// Add a portrait by placing the image in /public/team and setting image to
-// "/team/file-name.jpg". Keep image empty to display the initials fallback.
 export const team = [
-  { initials: "MK", name: "Mohamed Khalil Ayadhi", role: "President", color: "#4285f4", image: "", department: "executive", featured: true },
-  { initials: "MB", name: "Mariem Baccouche", role: "Vice President", color: "#34a853", image: "", department: "executive", featured: true },
-  { initials: "DC", name: "Dana Chebbi", role: "HR Manager", color: "#ea4335", image: "", department: "executive" },
+  { initials: "MK", name: "Mohamed Khalil Ayadhi", role: "President", color: "#4285f4", image: mohamedKhalilAyadhi, department: "executive", featured: true },
+  { initials: "MB", name: "Mariem Baccouche", role: "Vice President", color: "#34a853", image: mariemBaccouche, department: "executive", featured: true },
+  { initials: "DC", name: "Dana Chebbi", role: "HR Manager", color: "#ea4335", image: danaChebbi, department: "executive" },
 
-  { initials: "OS", name: "Yosri Mefteh", role: "Tech Manager", color: "#4285f4", image: "", department: "technical" },
-  { initials: "SM", name: "Ayoub Rouatbi", role: "Tech Assistant", color: "#4285f4", image: "", department: "technical" },
-  { initials: "RH", name: "Safa Hmida", role: "Tech Assistant", color: "#4285f4", image: "", department: "technical" },
+  { initials: "YM", name: "Yosri Meftah", role: "Tech Manager", color: "#4285f4", image: yosriMeftah, department: "technical" },
+  { initials: "AR", name: "Ayoub Rouatbi", role: "Tech Assistant", color: "#4285f4", image: ayoubRouatbi, department: "technical" },
+  { initials: "SH", name: "Safa Hmida", role: "Tech Assistant", color: "#4285f4", image: safaHmida, department: "technical" },
 
-  { initials: "GK", name: "Khaireddine Laadhari", role: "Marketing Manager", color: "#ea4335", image: "", department: "marketing-design" },
-  { initials: "IH", name: "Chaima Khalfallah", role: "Design Manager", color: "#fbbc05", image: "", department: "marketing-design" },
-  { initials: "EB", name: "Maryem Omri", role: "Media Manager", color: "#ea4335", image: "", department: "marketing-design" },
-  { initials: "GK", name: "Emna Souelmi", role: "Media Assistant", color: "#ea4335", image: "", department: "marketing-design" },
+  { initials: "KL", name: "Khaireddine Laadhari", role: "Marketing Manager", color: "#ea4335", image: khaireddineLaadhari, department: "marketing-design" },
+  { initials: "CK", name: "Chaima Khalfallah", role: "Design Manager", color: "#fbbc05", image: chaimaKhalfallah, department: "marketing-design" },
+  { initials: "MO", name: "Maryem Omri", role: "Media Manager", color: "#ea4335", image: maryemOmri, department: "marketing-design" },
+  { initials: "ES", name: "Emna Souelmi", role: "Media Assistant", color: "#ea4335", image: emnaSouelmi, department: "marketing-design" },
 
-  { initials: "MK", name: "Haithem Abid", role: "Communication Manager", color: "#fbbc05", image: "", department: "communication" },
-  { initials: "NB", name: "Sirine Ghodhben", role: "Communication Assistant", color: "#fbbc05", image: "", department: "communication" },
-  { initials: "IH", name: "Mohamed Amine Bziouech", role: "Communication Assistant", color: "#fbbc05", image: "", department: "communication" },
+  { initials: "HA", name: "Haithem Abid", role: "Communication Manager", color: "#fbbc05", image: haithemAbid, department: "communication" },
+  { initials: "SG", name: "Sirine Ghodhben", role: "Communication Assistant", color: "#fbbc05", image: sirineGhodhben, department: "communication" },
+  { initials: "MA", name: "Mohamed Amine Bziouech", role: "Communication Assistant", color: "#fbbc05", image: mohamedAmineBziouech, department: "communication" },
 
-  { initials: "AA", name: "Salma Gunenna", role: "Event Manager", color: "#34a853", image: "", department: "events-organisation" },
-  { initials: "WB", name: "Tasnim Ben Trad", role: "Organisation Manager", color: "#34a853", image: "", department: "events-organisation" },
+  { initials: "SG", name: "Salma Gunenna", role: "Event Manager", color: "#34a853", image: salmaGunenna, department: "events-organisation" },
+  { initials: "TB", name: "Tasnim Ben Trad", role: "Organisation Manager", color: "#34a853", image: tasnimBenTrad, department: "events-organisation" },
 ];
 
 export const events = [

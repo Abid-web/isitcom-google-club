@@ -1,16 +1,19 @@
 # Team portraits
 
-Place team photos in this folder, preferably as optimized `.webp` or `.jpg` files with a portrait aspect ratio.
+The active portraits live in `assets/Team IGC` and are imported at the top of
+`src/data.js`. Prefer optimized portrait-oriented `.webp` or `.jpg` files.
 
 Then set the corresponding `image` value in `src/data.js`, for example:
 
 ```js
+import aminaMansour from "../assets/Team IGC/Amina Mansour.webp";
+
 {
   initials: "AM",
   name: "Amina Mansour",
   role: "President",
   color: "#4285f4",
-  image: "/team/amina-mansour.webp",
+  image: aminaMansour,
   department: "executive",
   featured: true
 }

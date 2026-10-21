@@ -56,8 +56,12 @@ export function Header({ dark, onThemeToggle, menuOpen, setMenuOpen }) {
         <a className="brand" href="#home" aria-label="ISITCOM Google Club home"><img src="/assets/IGC.svg" alt="" /><span>ISITCOM<br />GOOGLE CLUB</span></a>
         <nav className="nav-links" aria-label="Primary navigation">{navItems.map(([label, href]) => <a href={href} key={href}>{label}</a>)}</nav>
         <div className="nav-actions">
-          <button className="icon-btn theme-toggle" type="button" aria-label={`Switch to ${dark ? "light" : "dark"} theme`} aria-pressed={dark} onClick={onThemeToggle}><span className="theme-icon" aria-hidden="true" /></button>
-          <a className="button magnetic" href="#join" data-cursor="Join">Join us <span className="button-arrow">↗</span></a>
+          <button className="icon-btn theme-toggle" type="button" aria-label={`Switch to ${dark ? "light" : "dark"} theme`} aria-pressed={dark} onClick={onThemeToggle}>
+            <span className="theme-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" focusable="false"><circle className="theme-sun-core" cx="12" cy="12" r="3.5" /><path className="theme-sun-rays" d="M12 2v2M12 20v2M4.93 4.93l1.42 1.42M17.65 17.65l1.42 1.42M2 12h2M20 12h2M4.93 19.07l1.42-1.42M17.65 6.35l1.42-1.42" /><path className="theme-moon" d="M20.2 15.15A8.25 8.25 0 0 1 8.85 3.8 8.25 8.25 0 1 0 20.2 15.15Z" /></svg>
+            </span>
+          </button>
+          <a className="button join-cta magnetic" href="#join" data-cursor="Join"><span>Join us</span><span className="button-arrow" aria-hidden="true">↗</span></a>
           <button className="icon-btn menu-toggle" type="button" aria-label={menuOpen ? "Close menu" : "Open menu"} aria-expanded={menuOpen} aria-controls="mobile-menu" onClick={() => setMenuOpen(v => !v)}><span className="menu-lines" aria-hidden="true" /></button>
         </div>
       </div>

@@ -1,11 +1,13 @@
 import { useEffect, useRef, useState } from "react";
 import { gsap } from "gsap";
 import { counters, departments, events, gallery, mission } from "../data";
+import { HERO_BG_V2 } from "../heroBackground";
 
 export function Hero() {
   const logo = useRef(null);
   const playEgg = () => gsap.timeline().to(logo.current, { y: -50, rotation: -18, duration: .35, ease: "power2.out" }).to(logo.current, { y: 0, rotation: 360, duration: .8, ease: "bounce.out" });
-  return <section className="hero" id="home" data-section="Start">
+  return <section className={HERO_BG_V2 ? "hero hero-bg-v2" : "hero"} id="home" data-section="Start">
+    {HERO_BG_V2 && <canvas className="hero-halftone" aria-hidden="true" />}
     <span className="shape shape-a" data-depth=".12" /><span className="shape shape-b" data-depth="-.09" /><span className="shape shape-c" data-depth=".18" /><span className="shape shape-d" data-depth="-.2" />
     <div className="shell hero-grid">
       <div className="hero-kicker"><p>A student-powered community where ideas meet skills, and curiosity becomes something real.</p><button className="hero-logo-button" type="button" onClick={playEgg} aria-label="Play the chechia animation"><img className="hero-logo" ref={logo} src="/assets/igc.png" alt="ISITCOM Google Club logo" /></button></div>

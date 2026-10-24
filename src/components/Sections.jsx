@@ -8,7 +8,7 @@ export function Hero() {
   return <section className="hero" id="home" data-section="Start">
     <span className="shape shape-a" data-depth=".12" /><span className="shape shape-b" data-depth="-.09" /><span className="shape shape-c" data-depth=".18" /><span className="shape shape-d" data-depth="-.2" />
     <div className="shell hero-grid">
-      <div className="hero-kicker"><p>A student-powered community where ideas meet skills, and curiosity becomes something real.</p><button className="hero-logo-button" type="button" onClick={playEgg} aria-label="Play the chechia animation"><img className="hero-logo" ref={logo} src="/assets/IGC.svg" alt="ISITCOM Google Club logo" /></button></div>
+      <div className="hero-kicker"><p>A student-powered community where ideas meet skills, and curiosity becomes something real.</p><button className="hero-logo-button" type="button" onClick={playEgg} aria-label="Play the chechia animation"><img className="hero-logo" ref={logo} src="/assets/igc.svg" alt="ISITCOM Google Club logo" /></button></div>
       <h1 className="hero-title" aria-label="Inspire. Grow. Create."><span className="hero-line"><span className="hero-word" data-color="yellow">Inspire.</span></span><span className="hero-line"><span className="hero-word" data-color="blue">Grow.</span></span><span className="hero-line"><span className="hero-word" data-color="red">Create.</span></span></h1>
       <div className="hero-meta"><span className="location">ISITCom · Hammam Sousse</span><div className="scroll-cue"><div className="scroll-cue-bar" /><span>Scroll to explore</span></div></div>
     </div>

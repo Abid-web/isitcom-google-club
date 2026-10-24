@@ -4,6 +4,8 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 import Lenis from "lenis";
 
 gsap.registerPlugin(ScrollTrigger);
+/* MOBILE FIX: ignore mobile toolbar resize triggering jittery ScrollTrigger recalculations */
+ScrollTrigger.config({ ignoreMobileResize: true });
 
 export function useSiteMotion(ready, setActiveSection) {
   useLayoutEffect(() => {
@@ -21,6 +23,18 @@ export function useSiteMotion(ready, setActiveSection) {
       gsap.ticker.add(raf);
       gsap.ticker.lagSmoothing(0);
       disposers.push(() => { gsap.ticker.remove(raf); lenis.destroy(); });
+
+      /* MOBILE FIX: stop Lenis when mobile menu or lightbox is open to eliminate background scroll-jacking */
+      const bodyObserver = new MutationObserver(() => {
+        const isLocked = document.body.classList.contains("menu-open") || document.body.classList.contains("lightbox-open");
+        if (isLocked) {
+          lenis.stop();
+        } else {
+          lenis.start();
+        }
+      });
+      bodyObserver.observe(document.body, { attributes: true, attributeFilter: ["class"] });
+      disposers.push(() => bodyObserver.disconnect());
     }
 
     const onAnchor = event => {
@@ -65,13 +79,31 @@ export function useSiteMotion(ready, setActiveSection) {
         const media = gsap.matchMedia();
         media.add("(min-width: 981px)", () => {
           const panels = gsap.utils.toArray(".department");
-          gsap.to(panels, { xPercent: -100 * (panels.length - 1), ease: "none", scrollTrigger: { trigger: ".departments", pin: true, scrub: 1, snap: 1 / (panels.length - 1), invalidateOnRefresh: true, end: () => `+=${document.querySelector("#department-track").scrollWidth - innerWidth}`, onUpdate: self => {
-            const index = Math.min(panels.length - 1, Math.round(self.progress * (panels.length - 1)));
-            document.querySelector(".departments").style.backgroundColor = panels[index].dataset.bg;
-            panels.forEach((panel, panelIndex) => panel.classList.toggle("active", panelIndex === index));
-          } } });
+          gsap.to(panels, {
+            xPercent: -100 * (panels.length - 1), ease: "none", scrollTrigger: {
+              trigger: ".departments", pin: true, scrub: 1, snap: 1 / (panels.length - 1), invalidateOnRefresh: true, end: () => `+=${document.querySelector("#department-track").scrollWidth - innerWidth}`, onUpdate: self => {
+                const index = Math.min(panels.length - 1, Math.round(self.progress * (panels.length - 1)));
+                document.querySelector(".departments").style.backgroundColor = panels[index].dataset.bg;
+                panels.forEach((panel, panelIndex) => panel.classList.toggle("active", panelIndex === index));
+              }
+            }
+          });
         });
-        media.add("(max-width: 980px)", () => document.querySelectorAll(".department").forEach(panel => ScrollTrigger.create({ trigger: panel, start: "top 55%", end: "bottom 45%", onToggle: self => panel.classList.toggle("active", self.isActive) })));
+        /* MOBILE FIX: morph departments background color on mobile scroll as user enters each act */
+        media.add("(max-width: 980px)", () => {
+          const deptContainer = document.querySelector(".departments");
+          document.querySelectorAll(".department").forEach(panel => ScrollTrigger.create({
+            trigger: panel,
+            start: "top 55%",
+            end: "bottom 45%",
+            onToggle: self => {
+              panel.classList.toggle("active", self.isActive);
+              if (self.isActive && deptContainer) {
+                deptContainer.style.backgroundColor = panel.dataset.bg;
+              }
+            }
+          }));
+        });
         disposers.push(() => media.revert());
 
         gsap.from(".team-card", { y: 70, opacity: 0, stagger: .06, duration: .8, ease: "power3.out", scrollTrigger: { trigger: ".team-hierarchy", start: "top 80%" } });
@@ -86,10 +118,18 @@ export function useSiteMotion(ready, setActiveSection) {
     disposers.push(() => context.revert());
 
     let lastY = window.scrollY;
+    /* MOBILE FIX: don't hide navbar when menu is open; check threshold to avoid address-bar micro-resize flutter */
     const onScroll = () => {
       const y = window.scrollY;
-      gsap.to(".site-header", { yPercent: y > lastY && y > 120 ? -110 : 0, duration: .4, ease: "power2.out", overwrite: true });
-      lastY = y;
+      if (document.body.classList.contains("menu-open")) {
+        gsap.to(".site-header", { yPercent: 0, duration: .2, ease: "power2.out", overwrite: true });
+        lastY = y;
+        return;
+      }
+      if (Math.abs(y - lastY) > 8) {
+        gsap.to(".site-header", { yPercent: y > lastY && y > 120 ? -110 : 0, duration: .4, ease: "power2.out", overwrite: true });
+        lastY = y;
+      }
     };
     window.addEventListener("scroll", onScroll, { passive: true });
     disposers.push(() => window.removeEventListener("scroll", onScroll));
@@ -116,7 +156,8 @@ export function useSiteMotion(ready, setActiveSection) {
       disposers.push(() => window.removeEventListener("mousemove", parallax));
     }
 
-    if (!reduced && matchMedia("(pointer:fine)").matches) {
+    /* MOBILE FIX: ensure magnetic effect only attaches on desktop pointers with fine hover */
+    if (!reduced && matchMedia("(pointer:fine) and (min-width:901px)").matches) {
       document.querySelectorAll(".magnetic").forEach(element => {
         const move = event => { const rect = element.getBoundingClientRect(); gsap.to(element, { x: (event.clientX - rect.left - rect.width / 2) * .16, y: (event.clientY - rect.top - rect.height / 2) * .16, duration: .35, ease: "power2.out" }); };
         const leave = () => gsap.to(element, { x: 0, y: 0, duration: .65, ease: "elastic.out(1,.4)" });

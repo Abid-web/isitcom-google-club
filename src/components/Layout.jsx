@@ -12,6 +12,7 @@ export function Loader({ onComplete }) {
   useEffect(() => {
     document.body.classList.add("loading");
     const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const isMobile = matchMedia("(max-width: 680px)").matches;
     const finish = () => {
       if (!root.current || root.current.dataset.done) return;
       root.current.dataset.done = "true";
@@ -27,11 +28,12 @@ export function Loader({ onComplete }) {
     };
     if (reduce) { finish(); return; }
     const meter = { value: 0 };
+    /* MOBILE FIX: lighter, snappier loader on mobile devices (1.0s vs 1.8s) while keeping the iconic chechia bounce */
     const timeline = gsap.timeline({ onComplete: finish })
-      .to(root.current.querySelector(".loader-mark"), { opacity: 1, y: 0, scale: 1, duration: .65, ease: "expo.out" })
-      .from(root.current.querySelector(".loader-cap"), { y: -180, rotation: -30, duration: .8, ease: "bounce.out" }, "<")
-      .to(meter, { value: 100, duration: 1.8, ease: "power2.inOut", onUpdate: () => setCount(Math.round(meter.value)) }, "<.2")
-      .to({}, { duration: .2 });
+      .to(root.current.querySelector(".loader-mark"), { opacity: 1, y: 0, scale: 1, duration: isMobile ? .45 : .65, ease: "expo.out" })
+      .from(root.current.querySelector(".loader-cap"), { y: -180, rotation: -30, duration: isMobile ? .6 : .8, ease: "bounce.out" }, "<")
+      .to(meter, { value: 100, duration: isMobile ? 1.0 : 1.8, ease: "power2.inOut", onUpdate: () => setCount(Math.round(meter.value)) }, "<.2")
+      .to({}, { duration: .15 });
     return () => { timeline.kill(); document.body.classList.remove("loading"); };
   }, [onComplete]);
 
@@ -45,10 +47,41 @@ export function Loader({ onComplete }) {
 }
 
 export function Header({ dark, onThemeToggle, menuOpen, setMenuOpen }) {
+  /* MOBILE FIX: trap focus, handle Escape key, and cleanly lock/unlock scroll when mobile menu is open */
   useEffect(() => {
     document.body.classList.toggle("menu-open", menuOpen);
-    return () => document.body.classList.remove("menu-open");
-  }, [menuOpen]);
+    if (!menuOpen) return () => document.body.classList.remove("menu-open");
+
+    const onKeyDown = event => {
+      if (event.key === "Escape") {
+        setMenuOpen(false);
+        return;
+      }
+      if (event.key === "Tab") {
+        const menu = document.getElementById("mobile-menu");
+        const toggleBtn = document.querySelector(".menu-toggle");
+        if (!menu) return;
+        const focusables = Array.from(menu.querySelectorAll("a, button"));
+        if (toggleBtn) focusables.unshift(toggleBtn);
+        if (focusables.length === 0) return;
+        const first = focusables[0];
+        const last = focusables[focusables.length - 1];
+        if (event.shiftKey && document.activeElement === first) {
+          event.preventDefault();
+          last.focus();
+        } else if (!event.shiftKey && document.activeElement === last) {
+          event.preventDefault();
+          first.focus();
+        }
+      }
+    };
+
+    window.addEventListener("keydown", onKeyDown);
+    return () => {
+      window.removeEventListener("keydown", onKeyDown);
+      document.body.classList.remove("menu-open");
+    };
+  }, [menuOpen, setMenuOpen]);
 
   return <>
     <header className="site-header">

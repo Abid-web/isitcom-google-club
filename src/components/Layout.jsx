@@ -40,7 +40,7 @@ export function Loader({ onComplete }) {
   return (
     <div className="loader" aria-label="Loading ISITCOM Google Club" role="status" ref={root}>
       <div className="loader-panel" /><div className="loader-panel" />
-      <div className="loader-inner"><div className="loader-lockup"><div className="loader-mark"><span className="loader-cap" aria-hidden="true" /><img src="/assets/IGC.svg" alt="ISITCOM Google Club" /></div><div className="loader-count"><span>{count}</span>%</div></div></div>
+      <div className="loader-inner"><div className="loader-lockup"><div className="loader-mark"><span className="loader-cap" aria-hidden="true" /><img src="/assets/igc.svg" alt="ISITCOM Google Club" /></div><div className="loader-count"><span>{count}</span>%</div></div></div>
       <button className="loader-skip" type="button" onClick={() => { root.current?.setAttribute("data-done", "true"); onComplete(); document.body.classList.remove("loading"); }}>Skip intro</button>
     </div>
   );
@@ -86,7 +86,7 @@ export function Header({ dark, onThemeToggle, menuOpen, setMenuOpen }) {
   return <>
     <header className="site-header">
       <div className="shell nav">
-        <a className="brand" href="#home" aria-label="ISITCOM Google Club home"><img src="/assets/IGC.svg" alt="" /><span>ISITCOM<br />GOOGLE CLUB</span></a>
+        <a className="brand" href="#home" aria-label="ISITCOM Google Club home"><img src="/assets/igc.svg" alt="" /><span>ISITCOM<br />GOOGLE CLUB</span></a>
         <nav className="nav-links" aria-label="Primary navigation">{navItems.map(([label, href]) => <a href={href} key={href}>{label}</a>)}</nav>
         <div className="nav-actions">
           <button className="icon-btn theme-toggle" type="button" aria-label={`Switch to ${dark ? "light" : "dark"} theme`} aria-pressed={dark} onClick={onThemeToggle}>

@@ -9,8 +9,8 @@ const HERO_DOTS = {
   lowPowerMax: 1200,
   desktopSpacing: 22,
   mobileSpacing: 30,
-  pointerRadius: 150,
-  pointerShift: 8,
+  pointerRadius: 220,
+  pointerShift: 15,
   desktopFps: 60,
   mobileFps: 24,
 };
@@ -37,13 +37,109 @@ function createDotGrid(width, height, mobile, lowPower) {
         x,
         y,
         radius: clamp(spacing * .085, 1.35, 2.7),
-        color: BRAND_COLORS[(row * 3 + column * 5) % BRAND_COLORS.length],
+        colorIndex: (row * 3 + column * 5) % BRAND_COLORS.length,
         phase: (row * .37 + column * .21) % (Math.PI * 2),
       });
     }
   }
 
   return dots;
+}
+
+function drawRegistrationMark(context, x, y, size, time, dark) {
+  const offset = size * .12;
+  const rotation = time * .00006;
+
+  context.save();
+  context.translate(x, y);
+  context.rotate(rotation);
+  context.lineWidth = 1.15;
+  context.globalAlpha = dark ? .28 : .22;
+
+  BRAND_COLORS.slice(0, 2).forEach((color, index) => {
+    const drift = index ? offset : -offset;
+    context.strokeStyle = color;
+    context.beginPath();
+    context.arc(drift, -drift, size * .42, 0, Math.PI * 2);
+    context.moveTo(drift - size * .7, -drift);
+    context.lineTo(drift + size * .7, -drift);
+    context.moveTo(drift, -drift - size * .7);
+    context.lineTo(drift, -drift + size * .7);
+    context.stroke();
+  });
+
+  context.restore();
+}
+
+function drawPrintGuides(context, bounds, time, mobile, reduced, lowPower, dark) {
+  if (lowPower) return;
+
+  const unit = Math.min(bounds.width, bounds.height);
+  const motion = reduced ? 0 : time * .0001;
+  const guides = mobile
+    ? [{ x: .72, y: .19, radius: .19, start: -.85, span: 1.65 }]
+    : [
+        { x: .58, y: .12, radius: .22, start: -.2, span: 1.52 },
+        { x: .88, y: .49, radius: .18, start: 1.48, span: 1.62 },
+      ];
+
+  context.save();
+  context.globalCompositeOperation = dark ? "screen" : "multiply";
+  context.lineCap = "round";
+
+  guides.forEach((guide, guideIndex) => {
+    for (let layer = 0; layer < 3; layer += 1) {
+      const radius = unit * (guide.radius + layer * .021);
+      const direction = guideIndex % 2 ? -1 : 1;
+      const start = guide.start + motion * direction + layer * .055;
+      context.globalAlpha = (dark ? .2 : .16) - layer * .025;
+      context.strokeStyle = BRAND_COLORS[(guideIndex + layer) % BRAND_COLORS.length];
+      context.lineWidth = 1.2 + layer * .6;
+      context.setLineDash([unit * .012, unit * (.013 + layer * .005)]);
+      context.lineDashOffset = reduced ? 0 : time * .006 * direction * (layer + 1);
+      context.beginPath();
+      context.arc(
+        bounds.width * guide.x,
+        bounds.height * guide.y,
+        radius,
+        start,
+        start + Math.PI * guide.span,
+      );
+      context.stroke();
+    }
+  });
+
+  context.setLineDash([]);
+  context.globalCompositeOperation = "source-over";
+  if (!mobile) {
+    drawRegistrationMark(context, bounds.width * .73, bounds.height * .19, 18, time, dark);
+    drawRegistrationMark(context, bounds.width * .84, bounds.height * .58, 13, -time, dark);
+  }
+  context.restore();
+}
+
+function drawPointerLens(context, x, y, time, dark) {
+  if (x < 0 || y < 0) return;
+
+  const pulse = Math.sin(time * .0024) * 4;
+  context.save();
+  context.globalCompositeOperation = dark ? "screen" : "multiply";
+  context.lineCap = "round";
+
+  [0, 1, 2].forEach(index => {
+    const radius = 56 + index * 29 + pulse * (index === 1 ? -1 : 1);
+    const start = time * .00042 * (index % 2 ? -1 : 1) + index * 1.7;
+    context.globalAlpha = (dark ? .34 : .27) - index * .045;
+    context.strokeStyle = BRAND_COLORS[index];
+    context.lineWidth = 1.4 + index * .45;
+    context.setLineDash([12 + index * 3, 11 + index * 5]);
+    context.lineDashOffset = -time * .018 * (index % 2 ? -1 : 1);
+    context.beginPath();
+    context.arc(x, y, radius, start, start + Math.PI * (1.08 + index * .16));
+    context.stroke();
+  });
+
+  context.restore();
 }
 
 export function initHeroLivingPrint({ getPointer } = {}) {
@@ -124,35 +220,54 @@ export function initHeroLivingPrint({ getPointer } = {}) {
       pointerX += (targetX - pointerX) * .16;
       pointerY += (targetY - pointerY) * .16;
       const ambient = reduced ? 0 : time * .001;
+      const dark = document.documentElement.dataset.theme === "dark";
+      const validPointer = targetX > -500 && targetY > -500;
+
+      // Oversized crop and registration guides establish the visible print-art direction.
+      drawPrintGuides(context, bounds, time, mobile, reduced, lowPower, dark);
 
       dots.forEach(dot => {
         const dx = dot.x - pointerX;
         const dy = dot.y - pointerY;
         const distance = Math.hypot(dx, dy);
-        const pointerInfluence = desktop ? clamp(1 - distance / HERO_DOTS.pointerRadius, 0, 1) : 0;
-        const ambientWave = mobile && !reduced ? (Math.sin(ambient * .72 + dot.phase) + 1) * .5 : 0;
+        const pointerInfluence = desktop && validPointer
+          ? Math.pow(clamp(1 - distance / HERO_DOTS.pointerRadius, 0, 1), 1.55)
+          : 0;
+        const waveA = Math.sin(dot.x * .0105 + dot.y * .0068 - ambient * .9 + dot.phase * .24);
+        const waveB = Math.sin(dot.x * -.0048 + dot.y * .012 - ambient * .58 - dot.phase * .16);
+        const printWave = reduced ? .45 : clamp((waveA + waveB + 2) * .25, 0, 1);
         const titleSafe = dot.x > titleBounds.left && dot.x < titleBounds.right
           && dot.y > titleBounds.top && dot.y < titleBounds.bottom;
-        const openZone = dot.y < bounds.height * .44 && dot.x > bounds.width * .3 ? 1.18 : 1;
-        const alpha = dotOpacity * openZone * (titleSafe ? .24 : 1) * (1 + pointerInfluence * .7);
-        const radius = dot.radius * (1 + pointerInfluence * 1.8 + ambientWave * .18);
+        const openZone = dot.y < bounds.height * .44 && dot.x > bounds.width * .26 ? 1.24 : 1;
+        const alpha = dotOpacity
+          * openZone
+          * (titleSafe ? .11 : 1)
+          * (.48 + printWave * 1.08)
+          * (1 + pointerInfluence * 1.55);
+        const radius = dot.radius * (.68 + printWave * .88 + pointerInfluence * 2.65);
         const shift = pointerInfluence * HERO_DOTS.pointerShift;
         const length = distance || 1;
-        const x = dot.x + (dx / length) * shift;
-        const y = dot.y + (dy / length) * shift;
+        const tangentX = -dy / length;
+        const tangentY = dx / length;
+        const x = dot.x + (dx / length) * shift + tangentX * shift * .48;
+        const y = dot.y + (dy / length) * shift + tangentY * shift * .48;
+        const colorStep = printWave > .72 ? 1 : 0;
 
         context.globalAlpha = alpha;
-        context.fillStyle = dot.color;
+        context.fillStyle = BRAND_COLORS[(dot.colorIndex + colorStep) % BRAND_COLORS.length];
         context.beginPath();
         context.arc(x, y, radius, 0, Math.PI * 2);
         context.fill();
       });
       context.globalAlpha = 1;
 
+      if (desktop && validPointer && !reduced && !lowPower) {
+        drawPointerLens(context, pointerX, pointerY, time, dark);
+      }
+
       // L3 — pointer depth reuses the custom cursor coordinates and this same ticker.
       if (desktop && !reduced) {
         shapeMotion.forEach(item => {
-          const validPointer = targetX > -500 && targetY > -500;
           const x = validPointer ? (targetX - bounds.width / 2) * item.depth * .58 : 0;
           const y = validPointer ? (targetY - bounds.height / 2) * item.depth * .48 : 0;
           item.x += (x - item.x) * .11;

@@ -24,4 +24,4 @@ pnpm preview
 - `src/components/JoinForm.jsx` — form state, validation and success animation
 - `src/useSiteMotion.js` — GSAP, ScrollTrigger, Lenis and interaction lifecycle
 - `src/styles.css` — the preserved visual system and responsive styling
-- `assets/IGC.svg` — supplied club logo
+- `assets/igc.png` — supplied club logo

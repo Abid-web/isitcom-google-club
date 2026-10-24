@@ -2,6 +2,7 @@ import { useLayoutEffect } from "react";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import Lenis from "lenis";
+import { HERO_BG_V2, initHeroLivingPrint } from "./heroBackground";
 
 gsap.registerPlugin(ScrollTrigger);
 /* MOBILE FIX: ignore mobile toolbar resize triggering jittery ScrollTrigger recalculations */
@@ -134,6 +135,7 @@ export function useSiteMotion(ready, setActiveSection) {
     window.addEventListener("scroll", onScroll, { passive: true });
     disposers.push(() => window.removeEventListener("scroll", onScroll));
 
+    let getHeroPointer;
     if (finePointer) {
       const dot = document.querySelector(".cursor-dot");
       const ring = document.querySelector(".cursor-ring");
@@ -143,6 +145,7 @@ export function useSiteMotion(ready, setActiveSection) {
       window.addEventListener("mousemove", onMouseMove);
       gsap.ticker.add(cursorTick);
       disposers.push(() => { window.removeEventListener("mousemove", onMouseMove); gsap.ticker.remove(cursorTick); });
+      getHeroPointer = () => ({ x: mouseX, y: mouseY });
 
       document.querySelectorAll("a, button, [data-cursor]").forEach(element => {
         const enter = () => { document.body.classList.add("cursor-active"); ring.dataset.label = element.dataset.cursor || "Open"; };
@@ -151,6 +154,11 @@ export function useSiteMotion(ready, setActiveSection) {
         disposers.push(() => { element.removeEventListener("mouseenter", enter); element.removeEventListener("mouseleave", leave); });
       });
 
+    }
+
+    if (HERO_BG_V2) {
+      disposers.push(initHeroLivingPrint({ getPointer: getHeroPointer }));
+    } else if (finePointer) {
       const parallax = event => document.querySelectorAll(".shape").forEach(shape => { const depth = Number(shape.dataset.depth); gsap.to(shape, { x: (event.clientX - innerWidth / 2) * depth, y: (event.clientY - innerHeight / 2) * depth, duration: 1.2, ease: "power2.out" }); });
       window.addEventListener("mousemove", parallax);
       disposers.push(() => window.removeEventListener("mousemove", parallax));

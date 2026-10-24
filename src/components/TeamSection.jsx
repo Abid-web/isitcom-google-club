@@ -12,7 +12,8 @@ const departments = [
 function TeamCard({ member }) {
   const [flipped, setFlipped] = useState(false);
   const toggle = () => setFlipped(value => !value);
-  const cardInk = member.color.toLowerCase() === "#fbbc05" ? "#0e0f12" : "#ffffff";
+  const cardColor = member.color.trim();
+  const cardInk = cardColor.toLowerCase() === "#fbbc05" ? "#0e0f12" : "#ffffff";
 
   return <article
     className={`team-card${flipped ? " flipped" : ""}${member.image ? " has-image" : ""}${member.featured ? " featured" : ""}`}
@@ -29,7 +30,7 @@ function TeamCard({ member }) {
     }}
   >
     <div className="team-card-inner">
-      <div className="team-front" style={{ "--card-color": member.color, "--card-ink": cardInk }}>
+      <div className="team-front" style={{ "--card-color": cardColor, "--card-ink": cardInk }}>
         <div className="team-portrait">
           {member.image
             ? <img src={member.image} alt={member.name} loading="lazy" />

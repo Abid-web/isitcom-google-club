@@ -39,7 +39,7 @@ export const team = [
   { initials: "SH", name: "Safa Hmida", role: "Tech Assistant", color: "#4285f4", image: safaHmida, department: "technical" },
 
   { initials: "KL", name: "Khaireddine Laadhari", role: "Marketing Manager", color: "#ea4335", image: khaireddineLaadhari, department: "marketing-design" },
-  { initials: "CK", name: "Chaima Khalfallah", role: "Design Manager", color: "#ea4335git ", image: chaimaKhalfallah, department: "marketing-design" },
+  { initials: "CK", name: "Chaima Khalfallah", role: "Design Manager", color: "#ea4335", image: chaimaKhalfallah, department: "marketing-design" },
   { initials: "MO", name: "Maryem Omri", role: "Media Manager", color: "#ea4335", image: maryemOmri, department: "marketing-design" },
   { initials: "ES", name: "Emna Souelmi", role: "Media Assistant", color: "#ea4335", image: emnaSouelmi, department: "marketing-design" },
 

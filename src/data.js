@@ -13,14 +13,18 @@ import salmaGunenna from "../assets/Team IGC/Salma Gunenna.webp";
 import sirineGhodhben from "../assets/Team IGC/Sirine Ghodhben.webp";
 import tasnimBenTrad from "../assets/Team IGC/Tasnim Ben Trad.webp";
 import yosriMeftah from "../assets/Team IGC/Yosri Meftah.webp";
+import birthdayImage from "../assets/card image/birthday.webp";
+import certifiedImage from "../assets/card image/certified.webp";
+import collaborationImage from "../assets/card image/collab-meet.webp";
+import workshopImage from "../assets/card image/workshop.webp";
 
 export const mission = "We bring curious students together to learn practical skills, share brave ideas, and create projects that make campus life more connected.";
 
 export const counters = [
-  { value: 120, suffix: "+", label: "active members" },
-  { value: 18, suffix: "+", label: "workshops delivered" },
-  { value: 12, suffix: "+", label: "events each year" },
-  { value: 9, suffix: "+", label: "student projects" },
+  { value: 60, suffix: "+", label: "active members" },
+  { value: 15, suffix: "+", label: "workshops delivered" },
+  { value: 100, suffix: "+", label: "certificats" },
+  { value: 2, suffix: "+", label: "collaborations" },
 ];
 
 export const departments = [
@@ -52,14 +56,17 @@ export const team = [
 ];
 
 export const events = [
-  { type: "upcoming", date: "08 Nov · 10:00", title: "Build Your First AI Agent", tag: "Workshop", desc: "A practical, beginner-friendly sprint from prompt to prototype.", art: "AI", color: "#a8c7fa" },
-  { type: "upcoming", date: "22 Nov · 14:00", title: "Design Systems Jam", tag: "Studio", desc: "Turn scattered screens into a flexible visual language as a team.", art: "UI", color: "#ffb4ab" },
-  { type: "upcoming", date: "06 Dec · 09:00", title: "Campus Build Day", tag: "Hackathon", desc: "One day, mixed teams and one goal: make student life better.", art: "01", color: "#a8dab5" },
-  { type: "past", date: "18 Sep", title: "Welcome Day 2026", tag: "Community", desc: "New faces, new ideas and the first sparks of this year’s journey.", art: "HI", color: "#ffe083" },
-  { type: "past", date: "04 Oct", title: "Git & GitHub Essentials", tag: "Workshop", desc: "Our hands-on introduction to collaborative development workflows.", art: "</>", color: "#a8c7fa" },
-  { type: "past", date: "12 Oct", title: "Speak So Ideas Travel", tag: "Talk", desc: "A communication lab built around confidence, clarity and feedback.", art: "//", color: "#ffe083" },
+  { type: "upcoming", title: "Open Day", tag: "Community", desc: "Team building activities and meetups", art: "HI", color: "#a8c7fa" },
+  { type: "upcoming", title: "Interview", tag: "Communication", desc: "Enhance your public speaking and debate skills", art: "//", color: "#ffb4ab" },
+  { type: "upcoming", title: "Workshops", tag: "Workshop", desc: "AI / WEB / IOT / Video editing / graphic designing", art: "WORK", color: "#a8dab5" },
+  { type: "past", title: "Birthday Party", tag: "Community", desc: "It's our birthday. Come celebrate with us.", art: "BIRTHDAY", color: "#ffe083" },
+  { type: "past", title: "Football tournement", tag: "Workshop", desc: "Come and enjoy the tournament with your friends.", art: "</>", color: "#a8c7fa" },
+  { type: "past", title: "Hackathon Participation", tag: "hackathon", desc: "We participated in the hackathon and we are proud of ourselves.", art: "//", color: "#ffe083" },
 ];
 
 export const gallery = [
-  ["Build night", "linear-gradient(135deg,#4285f4,#102f68)"], ["Workshop energy", "linear-gradient(135deg,#ea4335,#7a1710)"], ["Ideas in motion", "linear-gradient(135deg,#fbbc05,#9b7200)"], ["Team moments", "linear-gradient(135deg,#34a853,#0b5520)"], ["On the stage", "linear-gradient(135deg,#8b5cf6,#33205e)"], ["Ship together", "linear-gradient(135deg,#14b8a6,#064e47)"],
+  { label: "Birthday celebration", image: birthdayImage, alt: "Club members celebrating together" },
+  { label: "Certified achievement", image: certifiedImage, alt: "Club members holding their participation certificates" },
+  { label: "Collaboration meetup", image: collaborationImage, alt: "Club members meeting together" },
+  { label: "Workshop moments", image: workshopImage, alt: "Students attending a club workshop" },
 ];

@@ -1,5 +1,7 @@
 const supabaseUrl = import.meta.env.NEXT_PUBLIC_SUPABASE_URL?.trim().replace(/\/+$/, "");
 const publishableKey = import.meta.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY?.trim();
+const cooldownKey = "igc-application-cooldown";
+const browserCooldownMs = 60_000;
 
 function getSupabaseConfig() {
   if (!supabaseUrl || !publishableKey) {
@@ -21,6 +23,9 @@ function getSupabaseConfig() {
 }
 
 function getFriendlyError(status, payload) {
+  if (status === 429 || payload?.code === "RATE_LIMITED") {
+    return "Too many applications were sent. Please wait before trying again.";
+  }
   if (status === 400 || payload?.code === "23514") {
     return "Please check your answers and try again.";
   }
@@ -38,23 +43,32 @@ function getFriendlyError(status, payload) {
 
 export async function submitClubApplication(values) {
   const { url, publishableKey: key } = getSupabaseConfig();
+  try {
+    const lastSubmission = Number(window.localStorage.getItem(cooldownKey));
+    if (Number.isFinite(lastSubmission) && Date.now() - lastSubmission < browserCooldownMs) {
+      throw new Error("Please wait one minute before sending another application.");
+    }
+  } catch (error) {
+    if (error instanceof Error && error.message.startsWith("Please wait")) throw error;
+  }
+
   const payload = {
-    full_name: values.name.trim(),
-    email: values.email.trim().toLowerCase(),
-    study_year: values.year,
-    field_of_study: values.field.trim(),
-    department: values.department,
-    motivation: values.motivation.trim(),
+    p_full_name: values.name.trim(),
+    p_email: values.email.trim().toLowerCase(),
+    p_study_year: values.year,
+    p_field_of_study: values.field.trim(),
+    p_department: values.department,
+    p_motivation: values.motivation.trim() || null,
+    p_website: values.website,
   };
 
   let response;
   try {
-    response = await fetch(`${url}/rest/v1/club_applications`, {
+    response = await fetch(`${url}/rest/v1/rpc/submit_club_application`, {
       method: "POST",
       headers: {
         apikey: key,
         "Content-Type": "application/json",
-        Prefer: "return=minimal",
       },
       body: JSON.stringify(payload),
     });
@@ -65,5 +79,11 @@ export async function submitClubApplication(values) {
   if (!response.ok) {
     const errorPayload = await response.json().catch(() => null);
     throw new Error(getFriendlyError(response.status, errorPayload));
+  }
+
+  try {
+    window.localStorage.setItem(cooldownKey, String(Date.now()));
+  } catch {
+    // Storage can be unavailable in private browsing; server limits still apply.
   }
 }

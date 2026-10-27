@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { gsap } from "gsap";
-import { counters, departments, events, gallery, mission } from "../data";
+import { counters as defaultCounters, departments as defaultDepartments, events as defaultEvents, gallery as defaultGallery, mission as defaultMission } from "../data";
 import { HERO_BG_V2 } from "../heroBackground";
 
 export function Hero() {
@@ -22,7 +22,7 @@ export function MarqueeBand() {
   return <div className="marquee-band" aria-hidden="true"><div className="marquee-text">{[...items, ...items].map((item, i) => <span key={`${item}-${i}`}>{item}</span>)}</div></div>;
 }
 
-export function About() {
+export function About({ mission = defaultMission, counters = defaultCounters }) {
   const beats = [
     { number: "01", title: "Curiosity", copy: "One honest question is enough to begin.", color: "var(--yellow)" },
     { number: "02", title: "Community", copy: "Different minds meet, exchange and grow.", color: "var(--blue)" },
@@ -59,22 +59,22 @@ function DepartmentVisual({ type }) {
   return <div className="bubble-stage"><div className="bubble">Listen first.</div><div className="bubble">Speak clearly.</div><div className="bubble">Connect.</div></div>;
 }
 
-export function Departments() {
+export function Departments({ departments = defaultDepartments }) {
   return <section className="departments" id="departments" data-section="Acts" aria-label="Our departments"><div className="department-track" id="department-track">{departments.map((dept, i) => <article className="department" data-bg={dept.color} style={{ "--accent": dept.accent }} key={dept.title}><span className="dept-number">0{i + 1}</span><div className="dept-label"><span className="eyebrow">{dept.act}</span></div><div className="dept-content"><h2 className="dept-title">{dept.title}</h2><p className="dept-copy">{dept.copy}</p><div className="chips">{dept.chips.map(chip => <span className="chip" key={chip}>{chip}</span>)}</div></div><div className="dept-visual"><DepartmentVisual type={dept.visual} /></div></article>)}</div></section>;
 }
 
-export function Events() {
+export function Events({ events = defaultEvents }) {
   const [filter, setFilter] = useState("upcoming");
   const list = useRef(null);
   const filtered = events.filter(event => event.type === filter);
   useEffect(() => {
     const animation = gsap.fromTo(list.current.children, { y: 35, opacity: 0 }, { y: 0, opacity: 1, duration: .55, stagger: .08, ease: "power3.out" });
     return () => animation.kill();
-  }, [filter]);
-  return <section className="events-section" id="events" data-section="Events"><div className="shell"><div className="section-head"><div><span className="eyebrow">Club calendar</span><h2 className="section-title">Learn it.<br />Then live it.</h2></div><div><p className="section-copy">Workshops, talks and build nights designed to turn your next “what if?” into “look what we made.”</p><div className="filters" role="group" aria-label="Filter events">{["upcoming", "past"].map(item => <button className={`filter${filter === item ? " active" : ""}`} aria-pressed={filter === item} onClick={() => setFilter(item)} type="button" key={item}>{item[0].toUpperCase() + item.slice(1)}</button>)}</div></div></div><div className="timeline"><div className="timeline-progress" aria-hidden="true" /><div id="events-list" ref={list}>{filtered.map(event => <article className="event-card" key={event.title}><div className="event-visual" style={{ "--event-bg": event.color }}><span>{event.art}</span></div><div className="event-body"><div className="event-meta"><span className="event-tag">{event.tag}</span></div><h3 className="event-title">{event.title}</h3><p className="event-desc">{event.desc}</p></div></article>)}</div></div></div></section>;
+  }, [filter, events]);
+  return <section className="events-section" id="events" data-section="Events"><div className="shell"><div className="section-head"><div><span className="eyebrow">Club calendar</span><h2 className="section-title">Learn it.<br />Then live it.</h2></div><div><p className="section-copy">Workshops, talks and build nights designed to turn your next “what if?” into “look what we made.”</p><div className="filters" role="group" aria-label="Filter events">{["upcoming", "past"].map(item => <button className={`filter${filter === item ? " active" : ""}`} aria-pressed={filter === item} onClick={() => setFilter(item)} type="button" key={item}>{item[0].toUpperCase() + item.slice(1)}</button>)}</div></div></div><div className="timeline"><div className="timeline-progress" aria-hidden="true" /><div id="events-list" ref={list}>{filtered.map(event => <article className="event-card" key={event.title}><div className="event-visual" style={{ "--event-bg": event.color }}><span>{event.art}</span></div><div className="event-body"><div className="event-meta"><span className="event-tag">{event.tag}</span></div><h3 className="event-title">{event.title}</h3><p className="event-desc">{event.desc}</p>{event.link && <a className="button" style={{ marginTop: "12px", display: "inline-block" }} href={event.link} target="_blank" rel="noopener noreferrer">Register ↗</a>}</div></article>)}</div></div></div></section>;
 }
 
-export function Gallery() {
+export function Gallery({ gallery = defaultGallery }) {
   const [selected, setSelected] = useState(null);
   const touchStartY = useRef(0);
   useEffect(() => {
@@ -87,6 +87,10 @@ export function Gallery() {
   return <><section className="gallery-section" id="gallery" data-section="Gallery"><div className="shell"><div className="section-head"><div><span className="eyebrow">Club energy</span><h2 className="section-title">Built together.<br />Remembered forever.</h2></div><p className="section-copy">A glimpse of the late-night problem solving, stage moments and friendships made between the slides.</p></div></div><div className="gallery-rows" id="gallery-rows">{[0, 1].map(row => <div className={`gallery-row${row ? " reverse" : ""}`} key={row}>{doubled.map((item, i) => <button className="gallery-item" type="button" data-cursor="View" onClick={() => setSelected(item)} key={`${row}-${item.label}-${i}`}><img src={item.image} alt={item.alt} loading="lazy" /><span>{item.label}</span><b>↗</b></button>)}</div>)}</div></section>{selected && <div className="lightbox open" role="dialog" aria-modal="true" aria-label={selected.label} onTouchStart={e => { touchStartY.current = e.touches[0].clientY; }} onTouchEnd={e => { if (Math.abs(e.changedTouches[0].clientY - touchStartY.current) > 60) setSelected(null); }} onMouseDown={e => e.target === e.currentTarget && setSelected(null)}><button className="lightbox-close" type="button" aria-label="Close gallery" onClick={() => setSelected(null)} autoFocus>×</button><figure className="lightbox-art"><img src={selected.image} alt={selected.alt} /><figcaption>{selected.label}</figcaption></figure></div>}</>;
 }
 
-export function Footer() {
-  return <footer className="footer"><div className="shell"><div className="footer-top"><p className="footer-word">LET’S CREATE.</p></div><div className="footer-grid"><div className="footer-brand">ISITCOM<br />GOOGLE CLUB</div><div className="footer-col"><strong>Explore</strong><a href="#about">About</a><a href="#departments">Departments</a><a href="#team">Team</a></div><div className="footer-col"><strong>Connect</strong><a href="https://www.instagram.com/isitcomgoogleclub2/" onClick={e => e.preventDefault()}>Instagram</a><a href="#" onClick={e => e.preventDefault()}>LinkedIn</a><a href="mailto:hello@isitcomgoogleclub.tn">Email us</a></div><div className="footer-col"><strong>Find us</strong><span>ISITCom</span><span>Hammam Sousse</span><span>Tunisia</span></div></div><div className="footer-bottom"><span>© {new Date().getFullYear()} ISITCOM Google Club</span><span className="developer-credit"><span>Developed by</span><strong>Mohamed Khalil Ayadhi</strong><i aria-label="MKA signature">MKA</i></span><button className="back-top" type="button" onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}>Back to top ↑</button></div></div></footer>;
+export function Footer({ settings }) {
+  const instagram = settings?.instagram_url || "https://www.instagram.com/isitcomgoogleclub2/";
+  const linkedin = settings?.linkedin_url || "https://www.linkedin.com/company/isitcom-google-club/";
+  const email = settings?.contact_email || "hello@isitcomgoogleclub.tn";
+
+  return <footer className="footer"><div className="shell"><div className="footer-top"><p className="footer-word">LET’S CREATE.</p></div><div className="footer-grid"><div className="footer-brand">ISITCOM<br />GOOGLE CLUB</div><div className="footer-col"><strong>Explore</strong><a href="#about">About</a><a href="#departments">Departments</a><a href="#team">Team</a></div><div className="footer-col"><strong>Connect</strong><a href={instagram} target="_blank" rel="noopener noreferrer">Instagram ↗</a><a href={linkedin} target="_blank" rel="noopener noreferrer">LinkedIn ↗</a><a href={`mailto:${email}`}>Email us ↗</a></div><div className="footer-col"><strong>Find us</strong><span>ISITCom</span><span>Hammam Sousse</span><span>Tunisia</span></div></div><div className="footer-bottom"><span>© {new Date().getFullYear()} ISITCOM Google Club</span><span className="developer-credit"><span>Developed by</span><strong>Mohamed Khalil Ayadhi</strong><i aria-label="MKA signature">MKA</i></span><button className="back-top" type="button" onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}>Back to top ↑</button></div></div></footer>;
 }

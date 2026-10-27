@@ -1,25 +1,34 @@
-const supabaseUrl = import.meta.env.NEXT_PUBLIC_SUPABASE_URL?.trim().replace(/\/+$/, "");
-const publishableKey = import.meta.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY?.trim();
+const supabaseUrl = (import.meta.env.NEXT_PUBLIC_SUPABASE_URL || import.meta.env.VITE_SUPABASE_URL)?.trim().replace(/\/+$/, "");
+const publishableKey = (import.meta.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY || import.meta.env.VITE_SUPABASE_ANON_KEY || import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY)?.trim();
 const cooldownKey = "igc-application-cooldown";
 const browserCooldownMs = 60_000;
 
-function getSupabaseConfig() {
+export function getSupabaseConfig() {
   if (!supabaseUrl || !publishableKey) {
-    throw new Error("Applications are temporarily unavailable. The database connection is not configured.");
+    throw new Error("Supabase is not configured. Missing database URL or public key.");
   }
 
   let url;
   try {
     url = new URL(supabaseUrl);
   } catch {
-    throw new Error("Applications are temporarily unavailable. The database URL is invalid.");
+    throw new Error("Supabase URL is invalid.");
   }
 
   if (url.protocol !== "https:" && url.hostname !== "localhost" && url.hostname !== "127.0.0.1") {
-    throw new Error("Applications are temporarily unavailable. A secure database URL is required.");
+    throw new Error("A secure database URL (HTTPS or localhost) is required.");
   }
 
   return { url: url.toString().replace(/\/$/, ""), publishableKey };
+}
+
+export function isSupabaseConfigured() {
+  try {
+    getSupabaseConfig();
+    return true;
+  } catch {
+    return false;
+  }
 }
 
 function getFriendlyError(status, payload) {
@@ -41,6 +50,9 @@ function getFriendlyError(status, payload) {
   return "We could not send your application. Please try again.";
 }
 
+/**
+ * Public submission of a club application through the secured RPC.
+ */
 export async function submitClubApplication(values) {
   const { url, publishableKey: key } = getSupabaseConfig();
   try {
@@ -86,4 +98,93 @@ export async function submitClubApplication(values) {
   } catch {
     // Storage can be unavailable in private browsing; server limits still apply.
   }
+}
+
+/**
+ * Universal REST fetch for Supabase PostgREST endpoints.
+ */
+export async function supabaseRestFetch(path, options = {}) {
+  const { url, publishableKey: key } = getSupabaseConfig();
+  const token = options.token || null;
+  const headers = {
+    apikey: key,
+    "Content-Type": "application/json",
+    ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    ...(options.headers || {}),
+  };
+
+  const response = await fetch(`${url}/rest/v1${path.startsWith("/") ? path : `/${path}`}`, {
+    ...options,
+    headers,
+  });
+
+  if (!response.ok) {
+    const errorPayload = await response.json().catch(() => null);
+    const message = errorPayload?.message || errorPayload?.error_description || `Supabase REST error: ${response.status}`;
+    const err = new Error(message);
+    err.status = response.status;
+    err.payload = errorPayload;
+    throw err;
+  }
+
+  if (response.status === 204) return null;
+  return response.json();
+}
+
+/**
+ * Supabase GoTrue Auth REST fetch.
+ */
+export async function supabaseAuthFetch(path, options = {}) {
+  const { url, publishableKey: key } = getSupabaseConfig();
+  const token = options.token || null;
+  const headers = {
+    apikey: key,
+    "Content-Type": "application/json",
+    ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    ...(options.headers || {}),
+  };
+
+  const response = await fetch(`${url}/auth/v1${path.startsWith("/") ? path : `/${path}`}`, {
+    ...options,
+    headers,
+  });
+
+  const payload = await response.json().catch(() => null);
+  if (!response.ok) {
+    const message = payload?.msg || payload?.error_description || payload?.message || `Auth error: ${response.status}`;
+    const err = new Error(message);
+    err.status = response.status;
+    err.payload = payload;
+    throw err;
+  }
+
+  return payload;
+}
+
+/**
+ * Supabase Storage REST upload helper.
+ */
+export async function supabaseStorageUpload(bucket, filePath, file, token) {
+  const { url, publishableKey: key } = getSupabaseConfig();
+  const cleanPath = filePath.replace(/^\/+/, "");
+  const endpoint = `${url}/storage/v1/object/${bucket}/${cleanPath}`;
+
+  const response = await fetch(endpoint, {
+    method: "POST",
+    headers: {
+      apikey: key,
+      Authorization: `Bearer ${token}`,
+      "x-upsert": "true",
+      "Content-Type": file.type || "application/octet-stream",
+    },
+    body: file,
+  });
+
+  if (!response.ok) {
+    const payload = await response.json().catch(() => null);
+    throw new Error(payload?.message || payload?.error || `Upload failed with status ${response.status}`);
+  }
+
+  // Return public URL
+  return `${url}/storage/v1/object/public/${bucket}/${cleanPath}`;
 }
